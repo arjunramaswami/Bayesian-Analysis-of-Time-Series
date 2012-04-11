@@ -54,6 +54,10 @@ class Wave:
             self.bins = np.arange(0, max(self.timestamp)+self.leastcount, self.leastcount)   
             self.hist,self.id = np.histogram(self.timestamp,bins=self.bins)           
             
+            d = dict(zip(self.id,self.hist))
+            self.onlyone = [key for key,value in d.iteritems() if value==1.0]
+            self.onlyone = sorted(self.onlyone)
+            #print onlyone
             #plt.plot(self.id[1::],self.hist,'*')
             #plt.show()
         
