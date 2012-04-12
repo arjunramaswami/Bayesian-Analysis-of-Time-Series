@@ -1,17 +1,17 @@
 from __future__ import division
 import matplotlib.pyplot as plt
-from scipy.integrate import romberg
+from scipy.integrate import dblquad
 from scipy.misc import comb
 from decimal import *
 import numpy as np
 import math
 
-getcontext().prec = 500
+getcontext().prec = 10
 
 def multiplicity(phase, omega, bins, timelist):
     
     timeperiod = (2*math.pi)/omega
-    
+    print "Phase", phase
     events_bin,binedges = np.histogram(timelist,np.arange(phase,max(timelist),timeperiod/bins))
     folded = [sum(events_bin[i::bins]) for i in range(0,bins)]
     
@@ -22,23 +22,18 @@ def multiplicity(phase, omega, bins, timelist):
     addrem,bin_add = np.histogram(timelist,remaining_bin)
     addrem = list(addrem[::-1]) + [0 for _ in range(bins - len(addrem))]       
     addrem.reverse()
-    print folded, addrem        
-    folded = map(sum,folded,addrem)
-    
+   
+    folded = [(x + y) for x, y in zip(folded,addrem)]
     
     total = len(timelist)
     N = math.factorial(total)
     den = 1
     for i in folded:
         den = den*math.factorial(i)
-    multi = np.divide(N/den)  
-   
-    return Decimal(multi)
-
-def phaseintegration(omega,bins,timelist):
-    temp = romberg(multiplicity,0,2*math.pi,args=(omega,bins,timelist))
-    print temp
-    return (temp /omega)
+    
+    multi = np.divide(N,den)   
+    print "Omega ",Decimal(omega)
+    return 1/(Decimal(omega)*Decimal(multi))
     
 def oddsratio(timelist, wlo, whi, bins, mmax):                            
         
@@ -51,8 +46,8 @@ def oddsratio(timelist, wlo, whi, bins, mmax):
               
         pos_arr = bins**num   #pow(m,N)
         
-        inw = romberg(phaseintegration, wlo, whi,args=(bins,timelist))
-        
+        inw = dblquad(multiplicity, wlo, whi, lambda x:0, lambda x: 2*math.pi, args=(bins,timelist))
+        print inw, " \n", pos_arr," \n", const, " \n",combination
         result = (pos_arr*inw)/(const*combination)    
         
         return result    

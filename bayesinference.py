@@ -39,7 +39,6 @@ def modelbinning(startbin,timeobject,mmax):
     oddscomp = [oddsratio(i) for i in range(startbin,mmax+1)]
     x = [ math.log10(i)for i in oddscomp]    
     
-    
     plt.plot(range(startbin,mmax+1),x)
     plt.show()    
     
@@ -53,11 +52,16 @@ def multiplicity(omega,bins,timestamplist):
     remaining_bin.reverse()
     
     addrem,bin_add = np.histogram(timestamplist,remaining_bin)
-    a = map(sum,folded[-1::-1],addrem[-1::-1])
+    addrem.reverse()
+    addrem = addrem+list(np.zeros(bins-len(addrem)))
+    addrem.reverse()
+           
+    folded = map(sum,folded[-1::-1],addrem[-1::-1])
     
-                            
-integrate.romberg(multiplicity,0,2*math.pi,args=(omega,bins))
+def phase():
+    return (integrate.romberg(multiplicity,0,2*math.pi,args=(omega,bins))/omega)
 
+temp = integrate.romberg(phase,wlo,whi)
     
     
     
